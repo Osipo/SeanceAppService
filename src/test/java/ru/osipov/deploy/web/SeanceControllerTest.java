@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import org.hamcrest.core.IsNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -21,6 +22,7 @@ import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -38,9 +40,12 @@ public class SeanceControllerTest {
     private SeanceService serv;
 
     private Gson gson = new GsonBuilder().create();
+    private static final Logger logger = getLogger(SeanceControllerTest.class);
+
 
     @Test
     void testGetAll() throws Exception {
+        logger.info("testAll");
         final List<SeanceInfo> seances = new ArrayList<>();
         seances.add(new SeanceInfo(Long.parseLong(PARAMS1[0]),Long.parseLong(PARAMS1[1]), LocalDate.parse(PARAMS1[2])));
         seances.add(new SeanceInfo(Long.parseLong(PARAMS2[0]),Long.parseLong(PARAMS2[1]), LocalDate.parse(PARAMS2[2])));
@@ -65,6 +70,7 @@ public class SeanceControllerTest {
 
     @Test
     void getByDate() throws Exception {
+        logger.info("testByDate");
         final List<SeanceInfo> seances = new ArrayList<>();
         seances.add(new SeanceInfo(Long.parseLong(PARAMS1[0]),Long.parseLong(PARAMS1[1]),LocalDate.parse(PARAMS1[2])));
         final List<SeanceInfo> alls = new ArrayList<>();
@@ -102,6 +108,7 @@ public class SeanceControllerTest {
     }
     @Test
     void getByDateBetween() throws Exception {
+          logger.info("testByDateBetween");
           final List<SeanceInfo> an = new ArrayList<>();
           an.add(new SeanceInfo(99l,99L,LocalDate.parse(PARAMS2[2])));
           an.add(new SeanceInfo(88L,88L,LocalDate.parse(PARAMS3[2])));

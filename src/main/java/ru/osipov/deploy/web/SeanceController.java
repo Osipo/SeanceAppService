@@ -26,7 +26,7 @@ public class SeanceController {
         this.seanceService = service;
     }
 
-    //GET: /v1/seances?date=YYYY-mm-dd
+    //GET: /v1/seances?date=yyyy-MM-dd
     //if no any date was specified -> getAll() [GET: /v1/seances]
     @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE)
     public List<SeanceInfo> getAllByDate(@RequestParam(required = false, name = "date") String date){
