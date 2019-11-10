@@ -85,6 +85,21 @@ public class SeanceServiceImpl implements SeanceService{
         return rep.findAllByDateBefore(date).stream().map(this::buildModel).collect(Collectors.toList());
     }
 
+    @Override
+    public void deleteSeancesWithFilm(Long fid) {
+        List<Seance> l = rep.findByFid(fid);
+        if(l.size() == 0){
+            logger.info("not found.");
+            throw new IllegalStateException("Films are not found.");
+        }
+        else{
+            logger.info("Found films");
+            logger.info("Count: "+l.size());
+            rep.deleteAll(l);
+            logger.info("Successful deleted.");
+        }
+    }
+
     private SeanceInfo buildModel(Seance s){
         return new SeanceInfo(s.getCid(),s.getFid(),s.getDate());
     }

@@ -21,9 +21,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.slf4j.LoggerFactory.getLogger;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static ru.osipov.deploy.TestParams.*;
@@ -172,5 +173,22 @@ public class SeanceControllerTest {
                 .andExpect(jsonPath("$[2].cid").value(99L))
                 .andExpect(jsonPath("$[2].fid").value(77L))
                 .andExpect(jsonPath("$[2].date").value(PARAMS1[2]));
+    }
+
+    @Test
+    void testDelete() throws Exception {
+        doNothing().when(serv).deleteSeancesWithFilm(12L);
+        doThrow(new IllegalStateException("NOT FOUND")).when(serv).deleteSeancesWithFilm(-1L);
+
+        mockMvc.perform(post("/v1/seances/delete?fid=").accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(post("/v1/seances/delete?fid").accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(post("/v1/seances/delete").accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(post("/v1/seances/delete?").accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isNotFound());
+        mockMvc.perform(post("/v1/seances/delete?fid=12").accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk());
     }
 }

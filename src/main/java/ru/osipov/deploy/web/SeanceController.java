@@ -2,10 +2,8 @@ package ru.osipov.deploy.web;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 import ru.osipov.deploy.models.SeanceInfo;
 import ru.osipov.deploy.services.SeanceService;
 
@@ -71,5 +69,17 @@ public class SeanceController {
             result = seanceService.getSeancesByDateBetween(d1,d2);
         }
         return result;
+    }
+
+    //POST: /v1/seances/delete?fid='..'
+    @PostMapping(produces = APPLICATION_JSON_UTF8_VALUE, path = "/delete")
+    public ResponseEntity deleteSeances(@RequestParam(required = true,name = "fid", defaultValue = "-1") Long fid){
+        try{
+            seanceService.deleteSeancesWithFilm(fid);
+        }
+        catch (IllegalStateException e){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok("All deleted.");
     }
 }

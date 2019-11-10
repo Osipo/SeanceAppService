@@ -30,4 +30,7 @@ public interface SeanceService {
 
     @NonNull
     public List<SeanceInfo> getSeancesByDateBefore(String dateStr);
+
+    public void deleteSeancesWithFilm(Long fid);
+
 }
