@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.osipov.deploy.entities.Seance;
+import ru.osipov.deploy.models.CreateSeance;
 import ru.osipov.deploy.models.SeanceInfo;
 import ru.osipov.deploy.repositories.SeanceRepository;
 
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.time.*;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -97,6 +99,27 @@ public class SeanceServiceImpl implements SeanceService{
             logger.info("Count: "+l.size());
             rep.deleteAll(l);
             logger.info("Successful deleted.");
+        }
+    }
+
+    @Override
+    @Transactional
+    public SeanceInfo updateSeance(Long cid, Long fid, CreateSeance data) {
+        Optional<Seance> o = rep.findByFidAndCid(fid,cid);
+        if(o.isPresent()){
+            logger.info("Seance was found.");
+            Seance s = o.get();
+            s.setCid(data.getCid());
+            s.setFid(data.getFid());
+            s.setDate(data.getDate());
+            logger.info("New values are set.");
+            rep.save(s);
+            logger.info("Successful saved.");
+            return buildModel(s);
+        }
+        else{
+            logger.info("Seance with cinema_id = '{}' and film_id = '{}' was NOT FOUND.",cid,fid);
+            throw new IllegalStateException("Seance with cinema_id = '{}' and film_id = '{]' was NOT FOUND.");
         }
     }
 

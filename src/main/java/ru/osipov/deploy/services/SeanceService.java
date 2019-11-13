@@ -2,6 +2,7 @@ package ru.osipov.deploy.services;
 
 import lombok.NonNull;
 import org.springframework.stereotype.Service;
+import ru.osipov.deploy.models.CreateSeance;
 import ru.osipov.deploy.models.SeanceInfo;
 
 import javax.annotation.Nonnull;
@@ -32,5 +33,8 @@ public interface SeanceService {
     public List<SeanceInfo> getSeancesByDateBefore(String dateStr);
 
     public void deleteSeancesWithFilm(Long fid);
+
+
+    public SeanceInfo updateSeance(Long cid, Long fid, CreateSeance data);
 
 }

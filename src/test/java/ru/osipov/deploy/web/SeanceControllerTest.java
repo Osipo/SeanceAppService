@@ -1,8 +1,6 @@
 package ru.osipov.deploy.web;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.hamcrest.core.IsNull;
+import com.google.gson.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
@@ -13,18 +11,19 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.osipov.deploy.models.CreateSeance;
 import ru.osipov.deploy.models.SeanceInfo;
 import ru.osipov.deploy.services.SeanceService;
+import ru.osipov.deploy.web.utils.LocalDateAdapter;
+
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.slf4j.LoggerFactory.getLogger;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static ru.osipov.deploy.TestParams.*;
@@ -40,7 +39,9 @@ public class SeanceControllerTest {
     @MockBean
     private SeanceService serv;
 
-    private Gson gson = new GsonBuilder().create();
+    private Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(LocalDate.class,new LocalDateAdapter()).create();
+
+
     private static final Logger logger = getLogger(SeanceControllerTest.class);
 
 
@@ -176,7 +177,27 @@ public class SeanceControllerTest {
     }
 
     @Test
+    void testUpdate() throws Exception {
+        logger.info("testUpdate");
+        CreateSeance req = new CreateSeance(2L,10L,LocalDate.parse("2019-12-13"));
+        SeanceInfo r = new SeanceInfo(2L,10L,LocalDate.parse("2019-12-13"));
+        when(serv.updateSeance(2L,10L,req)).thenReturn(r);
+        doThrow(new IllegalStateException("NOT FOUND.")).when(serv).updateSeance(0L,2L,req);
+        mockMvc.perform(patch("/v1/seances/2/10").accept(MediaType.APPLICATION_JSON_UTF8).contentType(MediaType.APPLICATION_JSON_UTF8).content(gson.toJson(req)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$.cid").value(2L))
+                .andExpect(jsonPath("$.fid").value(10L))
+                .andExpect(jsonPath("$.date").value("2019-12-13"));
+        mockMvc.perform(patch("/v1/seances/0/2").accept(MediaType.APPLICATION_JSON_UTF8).contentType(MediaType.APPLICATION_JSON_UTF8).content(gson.toJson(req)))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
     void testDelete() throws Exception {
+        logger.info("testDelete");
         doNothing().when(serv).deleteSeancesWithFilm(12L);
         doThrow(new IllegalStateException("NOT FOUND")).when(serv).deleteSeancesWithFilm(-1L);
 

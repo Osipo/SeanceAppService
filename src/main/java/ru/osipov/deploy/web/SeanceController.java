@@ -2,11 +2,14 @@ package ru.osipov.deploy.web;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.osipov.deploy.models.CreateSeance;
 import ru.osipov.deploy.models.SeanceInfo;
 import ru.osipov.deploy.services.SeanceService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -81,5 +84,17 @@ public class SeanceController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok("All deleted.");
+    }
+
+    @PatchMapping(consumes = APPLICATION_JSON_UTF8_VALUE, produces = APPLICATION_JSON_UTF8_VALUE, path = {"/{cid}/{fid}"})
+    public ResponseEntity updateSeance(@PathVariable(required = true, name = "cid") Long cid, @PathVariable(required = true, name = "fid") Long fid, @RequestBody @Valid CreateSeance request){
+        SeanceInfo s;
+        try{
+            s = seanceService.updateSeance(cid,fid,request);
+        }
+        catch (IllegalStateException e){
+            return ResponseEntity.status(404).body(e.getMessage());
+        }
+        return ResponseEntity.ok(s);
     }
 }
