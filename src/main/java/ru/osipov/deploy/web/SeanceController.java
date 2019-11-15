@@ -10,6 +10,7 @@ import ru.osipov.deploy.models.SeanceInfo;
 import ru.osipov.deploy.services.SeanceService;
 
 import javax.validation.Valid;
+import java.net.URI;
 import java.util.List;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -40,6 +41,20 @@ public class SeanceController {
         else{
             logger.info("Date = '{}'",date);
             result = seanceService.getSeancesByDate(date);
+        }
+        return result;
+    }
+
+    @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE, path = {"/{id}","/"})
+    public List<SeanceInfo> getAllByCid(@PathVariable(required = false, name = "id") Long cid){
+        List<SeanceInfo> result;
+        if(cid == null || cid == 0){
+            logger.info("Cinema_id was not specified. Get all.");
+            result = seanceService.getAllSeances();
+        }
+        else{
+            logger.info("Cinema_id = '{}'",cid);
+            result = seanceService.getSeancesInCinema(cid);
         }
         return result;
     }
@@ -81,7 +96,7 @@ public class SeanceController {
             seanceService.deleteSeancesWithFilm(fid);
         }
         catch (IllegalStateException e){
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.status(404).body(e.getMessage());
         }
         return ResponseEntity.ok("All deleted.");
     }
@@ -96,5 +111,13 @@ public class SeanceController {
             return ResponseEntity.status(404).body(e.getMessage());
         }
         return ResponseEntity.ok(s);
+    }
+
+    //POST: /v1/seances/create
+    @PostMapping(consumes = APPLICATION_JSON_UTF8_VALUE, path = "/create")
+    public ResponseEntity createSeance(@RequestBody @Valid CreateSeance data){
+        logger.info("/v1/seances/create");
+        final URI url = seanceService.createSeance(data);
+        return ResponseEntity.created(url).build();
     }
 }

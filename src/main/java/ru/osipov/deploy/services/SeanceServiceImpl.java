@@ -11,6 +11,7 @@ import ru.osipov.deploy.models.SeanceInfo;
 import ru.osipov.deploy.repositories.SeanceRepository;
 
 import javax.annotation.Nonnull;
+import java.net.URI;
 import java.util.List;
 import java.time.*;
 import java.util.Optional;
@@ -121,6 +122,21 @@ public class SeanceServiceImpl implements SeanceService{
             logger.info("Seance with cinema_id = '{}' and film_id = '{}' was NOT FOUND.",cid,fid);
             throw new IllegalStateException("Seance with cinema_id = '{}' and film_id = '{]' was NOT FOUND.");
         }
+    }
+
+    @Override
+    @Transactional
+    public URI createSeance(CreateSeance request) {
+        logger.info("Creating seance...");
+        logger.info("Vals:\n\t cid = '{}'\n\t fid = '{}' \n\tdate = '{}'",request.getCid(),
+                request.getFid(),request.getDate().toString());
+        Seance c = new Seance();
+        c.setCid(request.getCid());
+        c.setFid(request.getFid());
+        c.setDate(request.getDate());
+        c = rep.save(c);
+        logger.info("Successful created.");
+        return URI.create("/v1/seances/"+c.getCid()+"/"+c.getFid());
     }
 
     private SeanceInfo buildModel(Seance s){

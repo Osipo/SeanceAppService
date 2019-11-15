@@ -17,6 +17,7 @@ import ru.osipov.deploy.services.SeanceService;
 import ru.osipov.deploy.web.utils.LocalDateAdapter;
 
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,6 +69,39 @@ public class SeanceControllerTest {
                 .andExpect(jsonPath("$[2].cid").value(Long.parseLong(PARAMS3[0])))
                 .andExpect(jsonPath("$[2].fid").value(Long.parseLong(PARAMS2[1])))
                 .andExpect(jsonPath("$[2].date").value(PARAMS3[2]));
+    }
+
+    @Test
+    void testGetByCid() throws Exception {
+        logger.info("testGetByCid");
+        List<SeanceInfo> emt = new ArrayList<>();
+
+        final List<SeanceInfo> seances = new ArrayList<>();
+        seances.add(new SeanceInfo(Long.parseLong(PARAMS1[0]),Long.parseLong(PARAMS1[1]), LocalDate.parse(PARAMS1[2])));
+        seances.add(new SeanceInfo(Long.parseLong(PARAMS1[0]),Long.parseLong(PARAMS2[1]), LocalDate.parse(PARAMS2[2])));
+        seances.add(new SeanceInfo(Long.parseLong(PARAMS1[0]),Long.parseLong(PARAMS2[1]), LocalDate.parse(PARAMS3[2])));
+        when(serv.getAllSeances()).thenReturn(emt);
+        when(serv.getSeancesInCinema(Long.parseLong(PARAMS1[0]))).thenReturn(seances);
+
+        mockMvc.perform(get("/v1/seances/"+PARAMS1[0])
+                .accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].cid").value(Long.parseLong(PARAMS1[0])))
+                .andExpect(jsonPath("$[0].fid").value(Long.parseLong(PARAMS1[1])))
+                .andExpect(jsonPath("$[0].date").value(PARAMS1[2]))
+                .andExpect(jsonPath("$[1].cid").value(Long.parseLong(PARAMS1[0])))
+                .andExpect(jsonPath("$[1].fid").value(Long.parseLong(PARAMS2[1])))
+                .andExpect(jsonPath("$[1].date").value(PARAMS2[2]))
+                .andExpect(jsonPath("$[2].cid").value(Long.parseLong(PARAMS1[0])))
+                .andExpect(jsonPath("$[2].fid").value(Long.parseLong(PARAMS2[1])))
+                .andExpect(jsonPath("$[2].date").value(PARAMS3[2]));
+        mockMvc.perform(get("/v1/seances/").accept(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(jsonPath("$").exists())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
@@ -211,5 +245,20 @@ public class SeanceControllerTest {
                 .andExpect(status().isNotFound());
         mockMvc.perform(post("/v1/seances/delete?fid=12").accept(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testCreate() throws Exception {
+        logger.info("testCreate");
+        CreateSeance created = new CreateSeance(2L,2L,LocalDate.now());
+        final URI url = URI.create("/v1/genres/5");
+        when(serv.createSeance(eq(created))).thenReturn(url);
+        mockMvc.perform(post("/v1/seances/create")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .accept(MediaType.APPLICATION_JSON_UTF8)
+                .content(gson.toJson(created)))
+                .andExpect(status().isCreated())
+                .andExpect(header().exists("Location"))
+                .andExpect(header().string("Location",url.toString()));
     }
 }

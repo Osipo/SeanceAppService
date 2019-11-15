@@ -6,6 +6,7 @@ import ru.osipov.deploy.models.CreateSeance;
 import ru.osipov.deploy.models.SeanceInfo;
 
 import javax.annotation.Nonnull;
+import java.net.URI;
 import java.util.List;
 
 @Service
@@ -36,5 +37,7 @@ public interface SeanceService {
 
 
     public SeanceInfo updateSeance(Long cid, Long fid, CreateSeance data);
+
+    public URI createSeance(CreateSeance data);
 
 }
