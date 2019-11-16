@@ -12,4 +12,5 @@ public class SeancePK implements Serializable {
         this.cid = cid;
         this.fid = fid;
     }
+
 }

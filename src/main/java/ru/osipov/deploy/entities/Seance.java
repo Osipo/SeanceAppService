@@ -1,7 +1,9 @@
 package ru.osipov.deploy.entities;
 
 import com.google.common.base.Objects;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -11,20 +13,25 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "seance")
 @IdClass(SeancePK.class)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Seance {
 
     @Id
     @Column(name = "cid", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cid;
 
     @Id
     @Column(name = "fid", nullable = false)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long fid;
 
     @Column(name = "begining", nullable = false)
     private LocalDate date;
+
+    public Seance(Long cid, Long fid){
+        this.cid = cid;
+        this.fid = fid;
+    }
 
     @Override
     public boolean equals(Object o) {

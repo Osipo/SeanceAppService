@@ -113,6 +113,14 @@ public class SeanceController {
         return ResponseEntity.ok(s);
     }
 
+    @GetMapping(produces = APPLICATION_JSON_UTF8_VALUE, path = {"/{cid}/{fid}"})
+    public ResponseEntity getSeanceByID(@PathVariable(required = true, name = "cid") Long cid, @PathVariable(required = true, name = "fid") Long fid){
+        SeanceInfo s = seanceService.getSeanceByFilmAndCinema(fid,cid);
+        if(s.getCid() == -1L)
+            return ResponseEntity.status(404).body("There are no any seance with cinema "+cid+"and film "+fid);
+        return ResponseEntity.ok(s);
+    }
+
     //POST: /v1/seances/create
     @PostMapping(consumes = APPLICATION_JSON_UTF8_VALUE, path = "/create")
     public ResponseEntity createSeance(@RequestBody @Valid CreateSeance data){

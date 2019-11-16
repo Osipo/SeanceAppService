@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.osipov.deploy.entities.Seance;
+import ru.osipov.deploy.entities.SeancePK;
 import ru.osipov.deploy.models.CreateSeance;
 import ru.osipov.deploy.models.SeanceInfo;
 import ru.osipov.deploy.repositories.SeanceRepository;
@@ -130,9 +131,7 @@ public class SeanceServiceImpl implements SeanceService{
         logger.info("Creating seance...");
         logger.info("Vals:\n\t cid = '{}'\n\t fid = '{}' \n\tdate = '{}'",request.getCid(),
                 request.getFid(),request.getDate().toString());
-        Seance c = new Seance();
-        c.setCid(request.getCid());
-        c.setFid(request.getFid());
+        Seance c = new Seance(request.getCid(),request.getFid());
         c.setDate(request.getDate());
         c = rep.save(c);
         logger.info("Successful created.");
